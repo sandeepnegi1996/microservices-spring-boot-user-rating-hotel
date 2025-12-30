@@ -63,4 +63,5 @@ public class User {
     @Transient
     private List<Rating> rating = new ArrayList<>();
 
+
 }
