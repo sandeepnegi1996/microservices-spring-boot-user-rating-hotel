@@ -11,8 +11,18 @@ spring:
     show-sql: true
     properties:
       dialect :  org.hibernate.dialect.PostgreSQLDialect
+  cloud:
+    openfeign:
+      client:
+        config:
+          default :
+            connectTimeout: 2000
+            readTimeout: 3000
 
 
+logging:
+  level:
+    com.lcwd.user.service.UserService : DEBUG
 
 server:
   port: 8081
@@ -25,4 +35,5 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone : http://localhost:8761/eureka
+
 

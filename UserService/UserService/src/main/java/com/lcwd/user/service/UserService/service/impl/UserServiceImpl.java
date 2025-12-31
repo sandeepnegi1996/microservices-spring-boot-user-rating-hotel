@@ -8,6 +8,7 @@ import com.lcwd.user.service.UserService.repository.UserRepository;
 import com.lcwd.user.service.UserService.service.UserService;
 import com.lcwd.user.service.UserService.service.external.HotelExternalService;
 import com.lcwd.user.service.UserService.service.external.RatingExternalService;
+import com.lcwd.user.service.UserService.service.feignclient.RatingClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final RatingExternalService ratingExternalService;
     private final HotelExternalService hotelExternalService;
 
+    private final RatingClient ratingClient;
 
     @Override
     public User saveUser(User user) {
@@ -61,7 +63,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String userId) {
         User user =userRepository.findById(userId).orElseThrow( () ->new ResourceNotFoundException("User is not found "+userId));
-        user.setRating(ratingExternalService.getRatingListByUserId(userId));
+
+//        user.setRating(ratingExternalService.getRatingListByUserId(userId));
+        log.info("Using feign client to make the api call with eureka ");
+        user.setRating(ratingClient.getRatingByUserId(userId));
 
         /*
         *  // rating -> hotelid
@@ -72,6 +77,8 @@ public class UserServiceImpl implements UserService {
         List<Rating> ratings =  user.getRating();
         for (Rating rating: ratings) {
            String hotelId =  rating.getHotelId();
+
+           // using the restTemplate getForEntity to call the external service
            Hotel hotel =  hotelExternalService.getHotelById(hotelId);
            rating.setHotel(hotel);
         }

@@ -16,7 +16,7 @@ public class HotelExternalService {
 
 
     public Hotel getHotelById(String hotelId) {
-        String url = "http://localhost:8082/hotel/"+hotelId;
+        String url = "http://HOTELSERVICE/hotel/"+hotelId;
 //        Hotel hotel = restTemplate.getForObject(url,Hotel.class);
        ResponseEntity<Hotel> hotelResponseEntity = restTemplate.getForEntity(url,Hotel.class);
        log.info("response status code for hotel external service for hotelId : {} code is : {}",hotelId,hotelResponseEntity.getStatusCode());

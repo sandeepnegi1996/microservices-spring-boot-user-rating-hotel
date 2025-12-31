@@ -21,11 +21,15 @@ public class RatingExternalService {
 
 
     public List<Rating> getRatingListByUserId(String userId) {
-        String url = "http://localhost:8083/rating/users/"+userId;
+
+
+        String url = "http://RATINGSERVICE/rating/users/"+userId;
+
+
         log.info("url is  : {} ",url);
        ResponseEntity<Rating[]>  responseEntity =  restTemplate.getForEntity(url,Rating[].class);
 
-       log.info("callling rating service response code : {} ",responseEntity.getStatusCode());
+       log.info("calling rating service response code : {} ",responseEntity.getStatusCode());
 
         return Arrays.asList(responseEntity.getBody());
     }
