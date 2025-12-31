@@ -8,6 +8,7 @@ import com.lcwd.user.service.UserService.repository.UserRepository;
 import com.lcwd.user.service.UserService.service.UserService;
 import com.lcwd.user.service.UserService.service.external.HotelExternalService;
 import com.lcwd.user.service.UserService.service.external.RatingExternalService;
+import com.lcwd.user.service.UserService.service.feignclient.HotelClient;
 import com.lcwd.user.service.UserService.service.feignclient.RatingClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final HotelExternalService hotelExternalService;
 
     private final RatingClient ratingClient;
+    private final HotelClient hotelClient;
 
     @Override
     public User saveUser(User user) {
@@ -79,7 +81,10 @@ public class UserServiceImpl implements UserService {
            String hotelId =  rating.getHotelId();
 
            // using the restTemplate getForEntity to call the external service
-           Hotel hotel =  hotelExternalService.getHotelById(hotelId);
+//           Hotel hotel =  hotelExternalService.getHotelById(hotelId);
+
+            // calling the hotel service using feign with hardcoded url
+           Hotel hotel =  hotelClient.getHotelById(hotelId);
            rating.setHotel(hotel);
         }
 

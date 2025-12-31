@@ -37,3 +37,7 @@ eureka:
       defaultZone : http://localhost:8761/eureka
 
 
+external :
+  service :
+    url :
+      hotel : "http://localhost:8082/hotel"
