@@ -66,9 +66,9 @@ public class UserServiceImpl implements UserService {
     public User getUser(String userId) {
         User user =userRepository.findById(userId).orElseThrow( () ->new ResourceNotFoundException("User is not found "+userId));
 
-//        user.setRating(ratingExternalService.getRatingListByUserId(userId));
-        log.info("Using feign client to make the api call with eureka ");
-        user.setRating(ratingClient.getRatingByUserId(userId));
+        user.setRating(ratingExternalService.getRatingListByUserId(userId));
+//        log.info("Using feign client to make the api call with eureka ");
+//        user.setRating(ratingClient.getRatingByUserId(userId));
 
         /*
         *  // rating -> hotelid

@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/sandeepnegi1996/config-microservices-user-hotel-rating/
+          clone-on-start: true
+
+
+
+server:
+  port: 8086
+
