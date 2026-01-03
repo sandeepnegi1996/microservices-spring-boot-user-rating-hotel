@@ -12,6 +12,11 @@ import java.time.Duration;
 public class UserConfig {
 
 
+    /*
+    * If data is flowing: As long as a new packet is received at least once every 3 seconds,
+    *  the connection will not time out, even if the total transfer takes much longer than 3 seconds.
+If data stops: If there is a pause in the data stream (e.g., the server is processing a large batch or the network hangs)
+*  that exceeds 3 seconds, the client will throw an exception. */
     @Bean()
     @LoadBalanced
     public RestTemplate restTemplate(RestTemplateBuilder builder) {

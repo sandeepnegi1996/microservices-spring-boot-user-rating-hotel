@@ -22,9 +22,30 @@ public class RatingExternalService {
     private final RestTemplate restTemplate;
 
 
+    /*
+    * 1️⃣1️⃣ Real failure scenario walkthrough
+Scenario: Rating service DB down
 
-//    @CircuitBreaker(name = "ratingCircuitBreaker",fallbackMethod = "ratingCircuitBreakerFallback")
-    @Retry(name = "ratingRetryInstance",fallbackMethod = "ratingCircuitBreakerFallback")
+First few calls timeout
+
+Retries happen (2 attempts)
+
+Failure rate crosses 50%
+
+Circuit opens
+
+All calls instantly go to fallback
+
+Hotel service stays healthy
+
+After 30s → half-open
+
+If success → close
+
+🔥 No cascading failure*/
+
+    @CircuitBreaker(name = "ratingCircuitBreaker",fallbackMethod = "ratingCircuitBreakerFallback")
+    @Retry(name = "ratingRetryInstance")
     public List<Rating> getRatingListByUserId(String userId) {
 
 
