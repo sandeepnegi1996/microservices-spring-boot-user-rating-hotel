@@ -19,6 +19,9 @@ spring:
             connectTimeout: 2000
             readTimeout: 3000
 
+  config:
+    import: optional:configserver:http://localhost:8086
+
 
 logging:
   level:
@@ -27,17 +30,67 @@ logging:
 server:
   port: 8081
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone : http://localhost:8761/eureka
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone : http://localhost:8761/eureka
 
 
 external :
   service :
     url :
       hotel : "http://localhost:8082/hotel"
+      ratingService : "http://localhost:8083/rating"
+
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+  endpoint:
+    health:
+      show-details: always
+
+  health:
+    circuitbreakers:
+      enabled: true
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingCircuitBreaker :
+        registerHealthIndicator: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s     # with this the downstream will recover in 30s meanwhile the circutit breaker will be in open state
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+  retry:
+    instances:
+      ratingRetryInstance :
+        maxAttempts: 3
+        waitDuration: 200ms
+        retryExceptions:
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - java.lang.IllegalArgumentException
+
+
+
+#

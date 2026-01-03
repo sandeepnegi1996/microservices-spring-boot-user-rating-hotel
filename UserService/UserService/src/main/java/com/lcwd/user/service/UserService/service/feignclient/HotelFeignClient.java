@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
         name = "hotel-external-client",
         url = "${external.service.url.hotel}"
 )
-public interface HotelClient {
+public interface HotelFeignClient {
 
     /*    @GetMapping("/{hotelId}")
     public ResponseEntity<Hotel> getHotelById(@PathVariable String hotelId) {

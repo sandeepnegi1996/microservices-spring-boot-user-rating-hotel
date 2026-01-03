@@ -12,7 +12,7 @@ import java.util.List;
         name = "RATINGSERVICE",
         path = "/rating/users"
 )
-public interface RatingClient {
+public interface RatingFeignClient {
 
     @GetMapping("/{userId}")
     List<Rating> getRatingByUserId(@PathVariable String userId);

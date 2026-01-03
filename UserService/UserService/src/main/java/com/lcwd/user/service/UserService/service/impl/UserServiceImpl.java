@@ -8,15 +8,15 @@ import com.lcwd.user.service.UserService.repository.UserRepository;
 import com.lcwd.user.service.UserService.service.UserService;
 import com.lcwd.user.service.UserService.service.external.HotelExternalService;
 import com.lcwd.user.service.UserService.service.external.RatingExternalService;
-import com.lcwd.user.service.UserService.service.feignclient.HotelClient;
-import com.lcwd.user.service.UserService.service.feignclient.RatingClient;
+import com.lcwd.user.service.UserService.service.feignclient.HotelFeignClient;
+import com.lcwd.user.service.UserService.service.feignclient.RatingFeignClient;
+import com.lcwd.user.service.UserService.service.feignclient.RatingFeignClientFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,8 +33,10 @@ public class UserServiceImpl implements UserService {
     private final RatingExternalService ratingExternalService;
     private final HotelExternalService hotelExternalService;
 
-    private final RatingClient ratingClient;
-    private final HotelClient hotelClient;
+    private final RatingFeignClient ratingFeignClient;
+    private final HotelFeignClient hotelFeignClient;
+
+    private final RatingFeignClientFacade ratingFeignClientFacade;
 
     @Override
     public User saveUser(User user) {
@@ -66,9 +68,12 @@ public class UserServiceImpl implements UserService {
     public User getUser(String userId) {
         User user =userRepository.findById(userId).orElseThrow( () ->new ResourceNotFoundException("User is not found "+userId));
 
+        // using rest tempkate
 //        user.setRating(ratingExternalService.getRatingListByUserId(userId));
-        log.info("Using feign client to make the api call with eureka ");
-        user.setRating(ratingClient.getRatingByUserId(userId));
+//        log.info("Using feign client to make the api call with eureka ");
+        // using feign client
+        user.setRating(ratingFeignClientFacade.getRatingByUserIdFeignClient(userId));
+
 
         /*
         *  // rating -> hotelid
@@ -84,7 +89,7 @@ public class UserServiceImpl implements UserService {
 //           Hotel hotel =  hotelExternalService.getHotelById(hotelId);
 
             // calling the hotel service using feign with hardcoded url
-           Hotel hotel =  hotelClient.getHotelById(hotelId);
+           Hotel hotel =  hotelFeignClient.getHotelById(hotelId);
            rating.setHotel(hotel);
         }
 
