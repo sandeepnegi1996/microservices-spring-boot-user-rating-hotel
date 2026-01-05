@@ -67,6 +67,13 @@ management:
 
 
 resilience4j:
+
+  timelimiter:
+    instances:
+      ratingTimeLimiter:
+        timeoutDuration: 2s
+
+
   circuitbreaker:
     instances:
       ratingCircuitBreaker :
@@ -90,6 +97,16 @@ resilience4j:
           - org.springframework.web.client.HttpServerErrorException
         ignoreExceptions:
           - java.lang.IllegalArgumentException
+
+
+# here limit referesh period is 4s and limit for period is 2 it means 2 requests are allowed in 4s
+#
+  ratelimiter:
+    instances:
+      getAllUsersRateLimiter :
+        timeoutDuration: 0s   # this means fail immediately if we keep timeoutDuration as 1s the thread will wait for 1s and it will be blocked during that time 
+        limitRefreshPeriod: 4s
+        limitForPeriod: 2
 
 
 
