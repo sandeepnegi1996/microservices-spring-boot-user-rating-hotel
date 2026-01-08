@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,7 +73,11 @@ public class UserServiceImpl implements UserService {
 //        user.setRating(ratingExternalService.getRatingListByUserId(userId));
 //        log.info("Using feign client to make the api call with eureka ");
         // using feign client
-        user.setRating(ratingFeignClientFacade.getRatingByUserIdFeignClient(userId));
+        try {
+            user.setRating(ratingFeignClientFacade.getRatingByUserIdFeignClient(userId).get());
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
 
         /*
