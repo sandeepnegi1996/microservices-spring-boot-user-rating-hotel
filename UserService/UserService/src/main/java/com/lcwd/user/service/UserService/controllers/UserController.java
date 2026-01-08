@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,5 +47,10 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         User user = userService.getUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @GetMapping("/current-user")
+    public String getCurrentUser(Principal principal) {
+        return principal.getName();
     }
 }
