@@ -24,7 +24,7 @@ public class RatingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Rating>> getAllRatings() {
+    public ResponseEntity<List<Rating>> getAllRatings() throws InterruptedException {
         return ResponseEntity.status(HttpStatus.OK).body(ratingService.getAllRatings());
     }
 

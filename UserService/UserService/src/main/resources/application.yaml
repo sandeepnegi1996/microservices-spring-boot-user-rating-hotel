@@ -22,10 +22,10 @@ spring:
 
     config:
       enabled: false
-  security:
-    user:
-      name: admin
-      password: admin
+#  security:
+#    user:
+#      name: admin
+#      password: admin
 #    import: optional:configserver:http://localhost:8086
 
 
@@ -93,9 +93,29 @@ resilience4j:
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
 
+      hotelCircuitBreaker:
+        registerHealthIndicator: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s     # with this the downstream will recover in 30s meanwhile the circutit breaker will be in open state
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
   retry:
     instances:
       ratingRetryInstance :
+        maxAttempts: 3
+        waitDuration: 200ms
+        retryExceptions:
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - java.lang.IllegalArgumentException
+
+      hotelRetryInstance:
         maxAttempts: 3
         waitDuration: 200ms
         retryExceptions:

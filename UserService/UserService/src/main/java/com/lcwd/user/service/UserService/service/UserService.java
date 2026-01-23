@@ -2,12 +2,11 @@ package com.lcwd.user.service.UserService.service;
 
 import com.lcwd.user.service.UserService.entities.User;
 
-
 import java.util.List;
 
 public interface UserService {
 
-//    CRUD
+    // CRUD
 
     User saveUser(User user);
 
@@ -15,13 +14,11 @@ public interface UserService {
 
     User getUser(String userId);
 
-//    TODO :delete
-//    TODO : update
-
+    // TODO :delete
+    // TODO : update
 
     void deleteUser(String userId);
 
     User updateUser(User user);
-
 
 }

@@ -6,12 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+
 /*
 * feign rating client with eureka service discovery with the name as the service registered on the discovery server */
-@FeignClient(
-        name = "RATINGSERVICE",
-        path = "/rating/users"
-)
+@FeignClient(name = "RATINGSERVICE", path = "/rating/users")
 public interface RatingFeignClient {
 
     @GetMapping("/{userId}")
