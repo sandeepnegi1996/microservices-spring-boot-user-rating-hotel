@@ -17,9 +17,8 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-
     @Autowired
-    private  UserService userService;
+    private UserService userService;
 
     @PostMapping
     public ResponseEntity<User> saveUser(@RequestBody User user) {
@@ -27,20 +26,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user1);
     }
 
-    /*simple implementation of rate limiter */
+    /* simple implementation of rate limiter */
     @GetMapping
-    @RateLimiter(name = "getAllUsersRateLimiter", fallbackMethod = "getAllUsersFallBackMethod")
-    public ResponseEntity<List<User>>  getAllUsers() {
+    // @RateLimiter(name = "getAllUsersRateLimiter", fallbackMethod =
+    // "getAllUsersFallBackMethod")
+    public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
     public ResponseEntity<List<User>> getAllUsersFallBackMethod(Exception ex) {
 
-         throw new ResponseStatusException(
+        throw new ResponseStatusException(
                 HttpStatus.TOO_MANY_REQUESTS,
-                "Too many requests, please try later"
-        );
-//        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Collections.emptyList());
+                "Too many requests, please try later");
+        // return
+        // ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Collections.emptyList());
     }
 
     @GetMapping("/{userId}")

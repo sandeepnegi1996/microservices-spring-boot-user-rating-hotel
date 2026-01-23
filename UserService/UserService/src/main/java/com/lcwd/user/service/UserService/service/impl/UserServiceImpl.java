@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
-        String randomUserID =  UUID.randomUUID().toString();
+        String randomUserID = UUID.randomUUID().toString();
         user.setUserId(randomUserID);
         return userRepository.save(user);
 
@@ -52,26 +52,25 @@ public class UserServiceImpl implements UserService {
 
         List<User> users = userRepository.findAll();
 
-
-
-       List<User> userList = users.stream().map(user -> {
+        List<User> userList = users.stream().map(user -> {
+            log.info("current user used for the raring list by user id {}", user);
             String userId = user.getUserId();
             List<Rating> ratings = ratingExternalService.getRatingListByUserId(userId);
             user.setRating(ratings);
             return user;
-       }).collect(Collectors.toList());
-
+        }).collect(Collectors.toList());
 
         return userList;
     }
 
     @Override
     public User getUser(String userId) {
-        User user =userRepository.findById(userId).orElseThrow( () ->new ResourceNotFoundException("User is not found "+userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User is not found " + userId));
 
         // using rest tempkate
-//        user.setRating(ratingExternalService.getRatingListByUserId(userId));
-//        log.info("Using feign client to make the api call with eureka ");
+        // user.setRating(ratingExternalService.getRatingListByUserId(userId));
+        // log.info("Using feign client to make the api call with eureka ");
         // using feign client
         try {
             user.setRating(ratingFeignClientFacade.getRatingByUserIdFeignClient(userId).get());
@@ -79,25 +78,23 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException(e);
         }
 
-
         /*
-        *  // rating -> hotelid
-            // call hotel Service and get hotel details
-            // add those to the user service and then return back */
+         * // rating -> hotelid
+         * // call hotel Service and get hotel details
+         * // add those to the user service and then return back
+         */
 
+        List<Rating> ratings = user.getRating();
+        for (Rating rating : ratings) {
+            String hotelId = rating.getHotelId();
 
-        List<Rating> ratings =  user.getRating();
-        for (Rating rating: ratings) {
-           String hotelId =  rating.getHotelId();
-
-           // using the restTemplate getForEntity to call the external service
-//           Hotel hotel =  hotelExternalService.getHotelById(hotelId);
+            // using the restTemplate getForEntity to call the external service
+            Hotel hotel = hotelExternalService.getHotelById(hotelId);
 
             // calling the hotel service using feign with hardcoded url
-           Hotel hotel =  hotelFeignClient.getHotelById(hotelId);
-           rating.setHotel(hotel);
+            // Hotel hotel = hotelFeignClient.getHotelById(hotelId);
+            rating.setHotel(hotel);
         }
-
 
         return user;
     }
