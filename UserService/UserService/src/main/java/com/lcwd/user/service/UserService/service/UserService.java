@@ -3,6 +3,7 @@ package com.lcwd.user.service.UserService.service;
 import com.lcwd.user.service.UserService.entities.User;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface UserService {
 
@@ -12,7 +13,7 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    User getUser(String userId);
+    User getUser(String userId) throws ExecutionException, InterruptedException;
 
     // TODO :delete
     // TODO : update

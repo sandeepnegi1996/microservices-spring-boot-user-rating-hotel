@@ -16,11 +16,17 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
             throws IOException {
 
         long start = System.currentTimeMillis();
+
+        // before execution if we wanted to do something
+
         ClientHttpResponse response = execution.execute(request, body);
+
+        // after execution we wanted to do something
         long time = System.currentTimeMillis() - start;
 
         log.info("RestTemplate call => method: {} URI: {} status: {} in {}ms", request.getMethod(), request.getURI(),
                 response.getStatusCode(), time);
+
         return response;
     }
 }

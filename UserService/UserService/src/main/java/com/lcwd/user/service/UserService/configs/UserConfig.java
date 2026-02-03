@@ -29,12 +29,13 @@ public class UserConfig {
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
 
          List<ClientHttpRequestInterceptor> interceptorList = new ArrayList<>();
-//
          interceptorList.add(new LoggingInterceptor());
+
+
 
         return builder.connectTimeout(Duration.ofSeconds(3))
                 .readTimeout(Duration.ofSeconds(3))
-                 .interceptors(interceptorList).build();
-//                .build();
+                .interceptors(interceptorList)
+                .build();
     }
 }

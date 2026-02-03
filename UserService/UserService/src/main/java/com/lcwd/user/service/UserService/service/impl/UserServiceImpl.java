@@ -6,16 +6,19 @@ import com.lcwd.user.service.UserService.entities.User;
 import com.lcwd.user.service.UserService.exceptions.ResourceNotFoundException;
 import com.lcwd.user.service.UserService.repository.UserRepository;
 import com.lcwd.user.service.UserService.service.UserService;
-import com.lcwd.user.service.UserService.service.external.HotelExternalService;
-import com.lcwd.user.service.UserService.service.external.RatingExternalService;
+import com.lcwd.user.service.UserService.service.restTemplateExternal.HotelExternalService;
+import com.lcwd.user.service.UserService.service.restTemplateExternal.RatingExternalService;
 import com.lcwd.user.service.UserService.service.feignclient.HotelFeignClient;
 import com.lcwd.user.service.UserService.service.feignclient.RatingFeignClient;
 import com.lcwd.user.service.UserService.service.feignclient.RatingFeignClientFacade;
+import com.lcwd.user.service.UserService.service.webclientExternal.HotelWebClientExternalService;
+import com.lcwd.user.service.UserService.service.webclientExternal.RatingWebClientExternalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +39,11 @@ public class UserServiceImpl implements UserService {
 
     private final RatingFeignClient ratingFeignClient;
     private final HotelFeignClient hotelFeignClient;
+    private final HotelWebClientExternalService hotelWebClientExternalService;
 
     private final RatingFeignClientFacade ratingFeignClientFacade;
+
+    private final RatingWebClientExternalService ratingWebClientExternalService;
 
     @Override
     public User saveUser(User user) {
@@ -64,7 +70,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUser(String userId) {
+    public User getUser(String userId) throws ExecutionException, InterruptedException {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User is not found " + userId));
 
@@ -72,11 +79,22 @@ public class UserServiceImpl implements UserService {
         // user.setRating(ratingExternalService.getRatingListByUserId(userId));
         // log.info("Using feign client to make the api call with eureka ");
         // using feign client
-        try {
-            user.setRating(ratingFeignClientFacade.getRatingByUserIdFeignClient(userId).get());
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
+//            user.setRating(ratingFeignClientFacade.getRatingByUserIdFeignClient(userId).get());
+
+
+            // letting use the webclient to call the rating service
+            //  lets set the userRating after wards
+            // here we have not actually procossed the pipeline
+            // we have just defined the pipeline
+
+            Mono<List<Rating>> listOfRating = ratingWebClientExternalService.getRatingListByUserIdAsync(userId);
+
+            List<Rating> ratingList = listOfRating.block();
+
+            user.setRating(ratingList);
+
+
 
         /*
          * // rating -> hotelid
@@ -85,16 +103,26 @@ public class UserServiceImpl implements UserService {
          */
 
         List<Rating> ratings = user.getRating();
+
         for (Rating rating : ratings) {
             String hotelId = rating.getHotelId();
+            log.info("current hotelid used to get the hotel details : {} ", hotelId);
 
             // using the restTemplate getForEntity to call the external service
-            Hotel hotel = hotelExternalService.getHotelById(hotelId);
+//            Hotel hotel = hotelExternalService.getHotelById(hotelId);
+            // using webclient to call the hotel service
+//            Hotel hotel =  hotelWebClientExternalService.getHotelByIdWebClientSync(hotelId);
 
+            // using webclient with async hotel service call
+            Mono<Hotel> hotelResponse  = hotelWebClientExternalService.getHotelByIdWebClientAsync(hotelId);
             // calling the hotel service using feign with hardcoded url
             // Hotel hotel = hotelFeignClient.getHotelById(hotelId);
-            rating.setHotel(hotel);
+
+            log.info("inside the  hotel id : {} ", hotelId);
+            rating.setHotel(hotelResponse.block()); // here we are actually calling the pipeline
         }
+
+
 
         return user;
     }
